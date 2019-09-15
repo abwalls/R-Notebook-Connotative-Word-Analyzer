@@ -1,0 +1,263 @@
+---
+title: "Connotative Analysis of Word Choice in FAANG Employee Reviews"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+binary_search <- function(x,value) {
+  low <- 1
+  high <- length(x)
+  mid <- 0
+  while(low < high - 1){
+    mid <- (high + low) %/% 2
+    if(value == x[mid]){
+      return(mid)
+    }
+    else if(value > x[mid]){
+      low <- mid
+    }
+    else{
+      high <- mid
+    }
+  }
+  if(value == x[low]){
+    return(low)
+  }
+  return(-1)
+}
+```
+
+```{r}
+library(dplyr)
+reviews <- read.csv("employee_reviews.csv", stringsAsFactors = FALSE)
+word_list <- read.csv("wordList.csv", stringsAsFactors = FALSE)
+
+#Clean wordlist data
+word_list$Positive.Words <- trimws(word_list$Positive.Words)
+word_list$negative.words <- trimws(word_list$negative.words)
+
+facebook_df <- filter(reviews, company == "facebook")
+facebook_wc <- strsplit(facebook_df$summary, " ")
+facebook_wc<-table(unlist(facebook_wc))
+facebook_wc <- data.frame(facebook_wc)
+facebook_wc <- gsub("[^A-z]", "", facebook_wc$Var1)
+facebook_wc<-table(unlist(facebook_wc))
+facebook_wc <- data.frame(facebook_wc)
+facebook_wc$Var1 <- tolower(trimws(facebook_wc$Var1))
+
+apple_df <- filter(reviews, company == "apple")
+apple_wc <- strsplit(apple_df$summary, " ")
+apple_wc<-table(unlist(apple_wc))
+apple_wc <- data.frame(apple_wc)
+apple_wc <- gsub("[^A-z]", "", apple_wc$Var1)
+apple_wc<-table(unlist(apple_wc))
+apple_wc <- data.frame(apple_wc)
+apple_wc$Var1 <- tolower(trimws(apple_wc$Var1))
+
+amazon_df <- filter(reviews, company == "amazon")
+amazon_wc <- strsplit(amazon_df$summary, " ")
+amazon_wc<-table(unlist(amazon_wc))
+amazon_wc <- data.frame(amazon_wc)
+amazon_wc <- gsub("[^A-z]", "", amazon_wc$Var1)
+amazon_wc<-table(unlist(amazon_wc))
+amazon_wc <- data.frame(amazon_wc)
+amazon_wc$Var1 <- tolower(trimws(amazon_wc$Var1))
+
+netflix_df <- filter(reviews, company == "netflix")
+netflix_wc <- strsplit(netflix_df$summary, " ")
+netflix_wc<-table(unlist(netflix_wc))
+netflix_wc <- data.frame(netflix_wc)
+netflix_wc <- gsub("[^A-z]", "", netflix_wc$Var1)
+netflix_wc<-table(unlist(netflix_wc))
+netflix_wc <- data.frame(netflix_wc)
+netflix_wc$Var1 <- tolower(trimws(netflix_wc$Var1))
+
+google_df <- filter(reviews, company == "google")
+google_wc <- strsplit(google_df$summary, " ")
+google_wc<-table(unlist(google_wc))
+google_wc <- data.frame(google_wc)
+google_wc <- gsub("[^A-z]", "", google_wc$Var1)
+google_wc<-table(unlist(google_wc))
+google_wc <- data.frame(google_wc)
+google_wc$Var1 <- tolower(trimws(google_wc$Var1))
+```
+
+```{r}
+#Compare facebook word list to connotavie list and count matches in vector
+facebook_vals <- c(0, 0, 0)
+
+for(i in 1:length(word_list$X)){
+   if(i <= 4705){ #Because positive words < negative words in the word_list
+     positive <- binary_search(facebook_wc$Var1,word_list$Positive.Words[i])
+   }
+   negative <- binary_search(facebook_wc$Var1,word_list$negative.words[i])
+   if(positive != -1){
+      facebook_vals[1] <- facebook_vals[1] + facebook_wc$Freq[positive]
+   }
+   if(negative != -1){
+     facebook_vals[2] <- facebook_vals[2] +  facebook_wc$Freq[negative]
+   }
+}
+
+facebook_vals[3] <- sum(facebook_wc$Freq) - facebook_vals[2] - facebook_vals[1]
+facebook_vals
+```
+
+```{r}
+#Compare amazon word list to connotavie list and count matches in vector
+apple_vals <- c(0, 0, 0)
+
+for(i in 1:length(word_list$X)){
+   if(i <= 4705){ #Because positive words < negative words in the word_list
+     positive <- binary_search(apple_wc$Var1,word_list$Positive.Words[i])
+   }
+   negative <- binary_search(apple_wc$Var1,word_list$negative.words[i])
+   if(positive != -1){
+      apple_vals[1] <- apple_vals[1] + apple_wc$Freq[positive]
+   }
+   if(negative != -1){
+     apple_vals[2] <- apple_vals[2] +  apple_wc$Freq[negative]
+   }
+}
+
+apple_vals[3] <- sum(apple_wc$Freq) - apple_vals[2] - apple_vals[1]
+apple_vals
+```
+
+```{r}
+#Compare amazon word list to connotavie list and count matches in vector
+amazon_vals <- c(0, 0, 0)
+
+for(i in 1:length(word_list$X)){
+   if(i <= 4705){ #Because positive words < negative words in the word_list
+     positive <- binary_search(amazon_wc$Var1,word_list$Positive.Words[i])
+   }
+   negative <- binary_search(amazon_wc$Var1,word_list$negative.words[i])
+   if(positive != -1){
+      amazon_vals[1] <- amazon_vals[1] + amazon_wc$Freq[positive]
+   }
+   if(negative != -1){
+     amazon_vals[2] <- amazon_vals[2] +  amazon_wc$Freq[negative]
+   }
+}
+
+amazon_vals[3] <- sum(amazon_wc$Freq) - amazon_vals[2] - amazon_vals[1]
+amazon_vals
+```
+
+```{r}
+#Compare amazon word list to connotavie list and count matches in vector
+netflix_vals <- c(0, 0, 0)
+
+for(i in 1:length(word_list$X)){
+   if(i <= 4705){ #Because positive words < negative words in the word_list
+     positive <- binary_search(netflix_wc$Var1,word_list$Positive.Words[i])
+   }
+   negative <- binary_search(netflix_wc$Var1,word_list$negative.words[i])
+   if(positive != -1){
+      netflix_vals[1] <- netflix_vals[1] + netflix_wc$Freq[positive]
+   }
+   if(negative != -1){
+     netflix_vals[2] <- netflix_vals[2] +  netflix_wc$Freq[negative]
+   }
+}
+
+netflix_vals[3] <- sum(netflix_wc$Freq) - netflix_vals[2] - netflix_vals[1]
+netflix_vals
+```
+
+```{r}
+#Compare google word list to connotavie list and count matches in vector
+google_vals <- c(0, 0, 0)
+
+for(i in 1:length(word_list$X)){
+   if(i <= 4705){ #Because positive words < negative words in the word_list
+     positive <- binary_search(google_wc$Var1,word_list$Positive.Words[i])
+   }
+   negative <- binary_search(google_wc$Var1,word_list$negative.words[i])
+   if(positive != -1){
+      google_vals[1] <- google_vals[1] + google_wc$Freq[positive]
+   }
+   if(negative != -1){
+     google_vals[2] <- google_vals[2] +  google_wc$Freq[negative]
+   }
+}
+
+google_vals[3] <- sum(google_wc$Freq) - google_vals[2] - google_vals[1]
+google_vals
+```
+
+```{r}
+#Print Facebook Results
+library('scales')
+cat("\nFacebook Employee Sentiment By Word Choice:")
+cat("\n  Postive Matches  Negative Matches  Non-Matches:\n")
+cat(" ",facebook_vals[1],"            ", facebook_vals[2],"             ",
+facebook_vals[3],"\n")
+cat("\n  Positive Connotative Word Usage:",
+percent(facebook_vals[1]/sum(facebook_vals)))
+cat("\n  Negative Connotative Word Usage:",
+percent(facebook_vals[2]/sum(facebook_vals)))
+```
+
+```{r}
+#Print Apple Results
+library('scales')
+cat("\nApple Employee Sentiment By Word Choice:")
+cat("\n  Postive Matches  Negative Matches  Non-Matches:\n")
+cat(" ",apple_vals[1],"            ", apple_vals[2],"             ",
+apple_vals[3],"\n")
+cat("\n  Positive Connotative Word Usage:",
+percent(apple_vals[1]/sum(apple_vals)))
+cat("\n  Negative Connotative Word Usage:",
+percent(apple_vals[2]/sum(apple_vals)))
+```
+
+```{r}
+#Print Amazon Results
+library('scales')
+cat("\nAmazon Employee Sentiment By Word Choice:")
+cat("\n  Postive Matches  Negative Matches  Non-Matches:\n")
+cat(" ",amazon_vals[1],"            ", amazon_vals[2],"            ",
+amazon_vals[3],"\n")
+cat("\n  Positive Connotative Word Usage:",
+percent(amazon_vals[1]/sum(amazon_vals)))
+cat("\n  Negative Connotative Word Usage:",
+percent(amazon_vals[2]/sum(amazon_vals)))
+```
+
+```{r}
+#Print Netflix Results
+library('scales')
+cat("\nNetflix Employee Sentiment By Word Choice:")
+cat("\n  Postive Matches  Negative Matches  Non-Matches:\n")
+cat(" ",netflix_vals[1],"            ", netflix_vals[2],"             ",
+netflix_vals[3],"\n")
+cat("\n  Positive Connotative Word Usage:",
+percent(netflix_vals[1]/sum(netflix_vals)))
+cat("\n  Negative Connotative Word Usage:",
+percent(netflix_vals[2]/sum(netflix_vals)))
+```
+
+```{r}
+#Print Google Results
+library('scales')
+cat("\nGoogle Employee Sentiment By Word Choice:")
+cat("\n  Postive Matches  Negative Matches  Non-Matches:\n")
+cat(" ",google_vals[1],"            ", google_vals[2],"             ",
+netflix_vals[3],"\n")
+cat("\n  Positive Connotative Word Usage:",
+percent(google_vals[1]/sum(google_vals)))
+cat("\n  Negative Connotative Word Usage:",
+percent(google_vals[2]/sum(google_vals)))
+```
+  
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
